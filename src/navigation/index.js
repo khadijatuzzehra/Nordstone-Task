@@ -7,6 +7,7 @@ import {ActivityIndicator, View} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {LOGIN_SUCCESS} from '../store/actions/ActionTypes';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {Loader} from '../components';
 
 const Container = () => {
   const [loading, setLoading] = useState(true);
@@ -33,11 +34,7 @@ const Container = () => {
   }, [dispatch]);
 
   if (loading) {
-    return (
-      <View>
-        <ActivityIndicator />
-      </View>
-    );
+    return <Loader />;
   }
   return (
     <NavigationContainer theme={MyTheme}>

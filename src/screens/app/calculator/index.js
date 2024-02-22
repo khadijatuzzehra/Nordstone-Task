@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {View, StyleSheet, Touchable, TouchableOpacity} from 'react-native';
+import {View, StyleSheet, TouchableOpacity} from 'react-native';
 import {Text, Input, Button, Wrapper, Dropdown} from '../../../components';
 import {Colors, Fonts} from '../../../theme';
 import {Dimensions} from '../../../utils/constants';
@@ -91,7 +91,7 @@ const Calculator = () => {
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: Dimensions.Height * 0.09,
+    marginVertical: Dimensions.Height * 0.12,
     marginHorizontal: Dimensions.Width * 0.04,
   },
   title: {

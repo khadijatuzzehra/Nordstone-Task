@@ -1,12 +1,6 @@
 import React, {useEffect, useState} from 'react';
-import {
-  Platform,
-  StyleSheet,
-  View,
-  LogBox,
-  TouchableOpacity,
-} from 'react-native';
-import {Button, Text, AlertWithIcon} from '../../../components';
+import {Platform, StyleSheet, View, TouchableOpacity} from 'react-native';
+import {Button, Text, Alert} from '../../../components';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
 import {Colors, Fonts} from '../../../theme';
@@ -18,8 +12,6 @@ import {LOGOUT} from '../../../store/actions/ActionTypes';
 import {useDispatch} from 'react-redux';
 import {PERMISSIONS, request} from 'react-native-permissions';
 import {useAxios} from '../../../utils/api';
-LogBox.ignoreAllLogs();
-console.warn = () => {};
 
 const Notification = () => {
   const {postNotification} = useAxios();
@@ -30,7 +22,7 @@ const Notification = () => {
     }
   };
   const dispatch = useDispatch();
-  const handleLogout = navigate => {
+  const handleLogout = () => {
     AsyncStorage.removeItem('userInfo').then(() => {
       dispatch({type: LOGOUT, payload: null});
     });
@@ -97,7 +89,7 @@ const Notification = () => {
       </View>
       <View style={styles.contentCenter}>
         <Text
-          text="**Please be informed that by clicking the button below, this will send notificatio directly to your device.**"
+          text="**Please be informed that by clicking the button below, this will send notification directly to your device.**"
           bold
           size={Fonts.size.font14}
           textColor={Colors.Gray}
@@ -110,17 +102,16 @@ const Notification = () => {
           backgroundColor={Colors.DangerColor}
           textColor={Colors.White}
           bold
-          height={Dimensions.Height * 0.19}
-          width={Dimensions.Width * 0.9}
+          height={Dimensions.Height * 0.07}
         />
-        <AlertWithIcon
+        <Alert
           heading={alertTitle}
           isVisible={visible}
           description={alertDescription}
-          iconName="checkmark-done-outline"
+          iconName="notifications"
           iconColor={Colors.Primary}
           onCancel={() => setVisible(false)}
-          button={'Thanks'}
+          button={'OK'}
         />
       </View>
     </View>
@@ -150,10 +141,9 @@ const styles = StyleSheet.create({
     borderRadius: 50,
   },
   contentCenter: {
-    justifyContent: 'center',
     alignItems: 'center',
     marginVertical: Dimensions.Height * 0.09,
-    marginHorizontal: Dimensions.Width * 0.05,
+    marginHorizontal: Dimensions.Width * 0.04,
   },
   gap: {
     marginVertical: Dimensions.Height * 0.05,

@@ -3,9 +3,10 @@ import {Colors, Fonts} from '../../theme';
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 30,
+    borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
+    alignSelf: 'center',
     backgroundColor: Colors.Primary,
   },
   text: {

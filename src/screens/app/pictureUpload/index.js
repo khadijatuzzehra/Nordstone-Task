@@ -1,41 +1,88 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {StyleSheet, Image, View} from 'react-native';
-import {Wrapper, MediaPicker, Button} from '../../../components';
-import Images from '../../../utils/media';
+import {Wrapper, MediaPicker, Text, Button, Loader} from '../../../components';
+import firestore from '@react-native-firebase/firestore';
 import {Dimensions} from '../../../utils/constants';
-import {Colors} from '../../../theme';
+import {Colors, Fonts} from '../../../theme';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
+  uploadPicture,
   uploadFromCamera,
   selectFromGallery,
-} from '../../../services/media_upload';
+} from '../../../services/mediaUpload';
+import Images from '../../../utils/media';
 
 const PictureUpload = () => {
   const [pictureModal, setPictureModal] = useState(false);
+  const [imageUrl, setImageUrl] = useState('');
+  const [loading, setLoading] = useState(false);
   const handlePictureUpload = async pictureOption => {
-    console.log('joining picture');
     let picture = '';
     setPictureModal(false);
+    setLoading(true);
     if (pictureOption === 'Camera') {
       picture = await uploadFromCamera();
     } else {
       picture = await selectFromGallery();
     }
-    console.log(picture);
+    const url = await uploadPicture(picture);
+    setImageUrl(url);
+    setLoading(false);
   };
+  useEffect(() => {
+    loadPicture();
+  }, []);
+
+  const loadPicture = async () => {
+    setLoading(true);
+    const userInfoString = await AsyncStorage.getItem('userInfo');
+    if (!userInfoString) {
+      setLoading(false);
+      return null;
+    }
+    const userInfo = JSON.parse(userInfoString);
+    firestore()
+      .collection('UserImages')
+      .where('email', '==', userInfo?.email)
+      .get()
+      .then(querySnapshot => {
+        querySnapshot.forEach(documentSnapshot => {
+          const userData = documentSnapshot.data();
+          setImageUrl(userData?.image);
+          setLoading(false);
+        });
+      })
+      .catch(error => {
+        console.error('Error fetching image:', error);
+      });
+    setLoading(false);
+  };
+  if (loading) {
+    return <Loader />;
+  }
 
   return (
     <Wrapper>
       <View style={styles.container}>
-        <Image source={Images.User} style={styles.image} />
+        <Text
+          text="**Replace or Upload Image to firestore using Camera or Gallery**"
+          bold
+          size={Fonts.size.font14}
+          textColor={Colors.Gray}
+          styles={styles.gap}
+        />
+        {imageUrl ? (
+          <Image source={{uri: imageUrl}} style={styles.image} />
+        ) : (
+          <Image source={Images.User} style={styles.image} />
+        )}
         <Button
-          onClick={() => setPictureModal(true)}
+          onClick={handlePictureUpload}
           buttonType="fill"
           text="Replace/Upload Image"
           backgroundColor={Colors.Primary}
           textColor={Colors.White}
           bold
-          height={Dimensions.Height * 0.08}
-          width={Dimensions.Width * 0.8}
         />
       </View>
       <MediaPicker
@@ -51,22 +98,15 @@ export default PictureUpload;
 
 const styles = StyleSheet.create({
   container: {
-    alignSelf: 'center',
-    marginVertical: Dimensions.Height * 0.08,
+    marginVertical: Dimensions.Height * 0.2,
+    alignItems: 'center',
+    marginHorizontal: Dimensions.Width * 0.04,
   },
   image: {
-    height: Dimensions.Height * 0.6,
-    width: Dimensions.Width * 0.8,
-    resizeMode: 'cover',
-    alignSelf: 'center',
-    borderColor: Colors.Primary,
+    height: Dimensions.Height * 0.4,
+    width: Dimensions.Height * 0.4,
+    borderColor: Colors.Gray,
     borderWidth: 2,
-    marginBottom: Dimensions.Height * 0.02,
-  },
-  editButton: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    marginTop: Dimensions.Height * 0.05,
+    marginVertical: Dimensions.Height * 0.02,
   },
 });

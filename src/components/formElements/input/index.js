@@ -1,10 +1,11 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {View, TextInput, TouchableOpacity} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import style from './styles';
 import {Colors} from '../../../theme';
 import {Dimensions} from '../../../utils/constants';
 const Input = ({
+  reset = false,
   onChangeText,
   fieldType,
   height = Dimensions.Height * 0.06,
@@ -15,9 +16,13 @@ const Input = ({
   styles,
 }) => {
   //States defined
+  useEffect(() => {
+    if (reset) {
+      setText('');
+    }
+  }, [reset]);
   const [text, setText] = useState('');
   const [secureText, setSecureText] = useState(fieldType === 'password');
-
   //Callback function
   const handleTextChange = inputText => {
     setText(inputText);
@@ -64,7 +69,7 @@ const Input = ({
   return (
     <View style={[containerStyle, styles, style.container]}>
       <TextInput
-        multiline={fieldType !== 'password'}
+        multiline={fieldType === 'description'}
         keyboardType={fieldType === 'number' ? 'numeric' : 'default'}
         style={[
           style.input,

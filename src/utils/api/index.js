@@ -200,7 +200,7 @@ export const ApiProvider = props => {
       to: deviceToken,
       notification: {
         title: 'Hey User!',
-        body: 'You triggered a notification on button click',
+        body: "This is how you see a notification when the app is in 'Open State'",
         mutable_content: true,
       },
       data: {

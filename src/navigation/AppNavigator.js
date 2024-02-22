@@ -75,6 +75,7 @@ export default () => {
       screenOptions={({route}) => ({
         tabBarStyle: {display: getTabBarVisibility(route)},
         tabBarActiveTintColor: Colors.Primary,
+        tabBarHideOnKeyboard: true,
         tabBarInactiveTintColor: Colors.LightSecondary,
         tabBarIcon: ({focused, color, size}) => {
           let iconName;

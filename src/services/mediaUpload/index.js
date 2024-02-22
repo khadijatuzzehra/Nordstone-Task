@@ -1,7 +1,9 @@
-import {Platform, Linking, NativeModules} from 'react-native';
+import {Platform, Linking} from 'react-native';
 import {PERMISSIONS, request} from 'react-native-permissions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-const ImageCropPicker = NativeModules.ImageCropPicker;
+import ImageCropPicker from 'react-native-image-crop-picker';
+import firestore from '@react-native-firebase/firestore';
+import storage from '@react-native-firebase/storage';
 
 export const selectFromGallery = async () => {
   try {
@@ -99,5 +101,52 @@ export const uploadFromCamera = async () => {
     }
   } catch (error) {
     return error;
+  }
+};
+
+export const uploadPicture = async picture => {
+  const userInfoString = await AsyncStorage.getItem('userInfo');
+  if (!userInfoString) {
+    return null;
+  }
+  const userInfo = JSON.parse(userInfoString);
+  const email = userInfo?.email;
+  const uploadUri =
+    Platform.OS === 'ios'
+      ? picture?.path?.replace('file://', '')
+      : picture?.path;
+  let ref = email + new Date().getTime();
+  const task = storage().ref(ref).putFile(uploadUri);
+  try {
+    await task;
+    task.then(() => {
+      console.log('Image uploaded to the bucket!');
+    });
+    const url = await storage().ref(ref).getDownloadURL();
+    try {
+      const userImagesRef = firestore().collection('UserImages');
+      const querySnapshot = await userImagesRef
+        .where('email', '==', email)
+        .get();
+
+      if (!querySnapshot.empty) {
+        querySnapshot.forEach(async documentSnapshot => {
+          const docRef = userImagesRef.doc(documentSnapshot.id);
+          await docRef.update({image: url});
+          console.log('Image URL updated successfully.');
+        });
+      } else {
+        await userImagesRef.add({
+          email: email,
+          image: url,
+        });
+        console.log('New document with image URL created successfully.');
+      }
+      return url;
+    } catch (error) {
+      console.error('Error loading picture:', error);
+    }
+  } catch (e) {
+    console.error(e);
   }
 };

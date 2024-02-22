@@ -1,9 +1,8 @@
 import React from 'react';
 import {View, StyleSheet} from 'react-native';
 import Modal from 'react-native-modal';
-
 import {Button, Text} from '../../../components';
-import {Colors} from '../../../theme';
+import {Colors, Fonts} from '../../../theme';
 import {Dimensions} from '../../../utils/constants';
 
 const Alert = ({
@@ -22,13 +21,13 @@ const Alert = ({
           <Text
             text={heading}
             bold
-            size={Fonts.size.font16}
+            size={Fonts.size.font18}
             textColor={Colors.Primary}
           />
           <Text
             text={description}
-            size={Fonts.size.font12}
-            textColor={Colors.Secondary}
+            size={Fonts.size.font13}
+            textColor={Colors.Gray}
             styles={styles.description}
           />
           <View style={styles.buttonContainer}>
