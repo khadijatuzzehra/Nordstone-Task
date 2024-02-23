@@ -116,6 +116,11 @@ const Register = () => {
                 value: 8,
                 message: 'Password must be at least 8 characters',
               },
+              pattern: {
+                value: /^(?=.*[A-Z])(?=.*\d)(?!.*\s).{8,}$/,
+                message:
+                  'Password must contain at least 1 number, 1 capital letter, and no spaces',
+              },
             }}
           />
           {errors.password && (
