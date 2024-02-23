@@ -1,20 +1,68 @@
 import React, {useState} from 'react';
 import {View, StyleSheet, TouchableOpacity} from 'react-native';
-import {Text, Input, Button, Wrapper, Dropdown} from '../../../components';
+import {
+  Text,
+  Input,
+  Button,
+  Wrapper,
+  Dropdown,
+  Alert,
+  Loader,
+} from '../../../components';
 import {Colors, Fonts} from '../../../theme';
 import {Dimensions} from '../../../utils/constants';
+import {useForm, Controller} from 'react-hook-form';
+import {useAxios} from '../../../utils/api';
 
 const Calculator = () => {
-  const [text, setText] = useState('');
+  const [op, setOp] = useState('');
+  const {post} = useAxios();
+  const [alertTitle, setAlertTitle] = useState('');
+  const [alertDescription, setAlertDescription] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [visible, setVisible] = useState(false);
   const [open, setOpen] = useState(false);
-  const buttonController = async () => {
-    console.log('hey');
+  const [reset, setReset] = useState(false);
+  const {
+    control,
+    handleSubmit,
+    formState: {errors},
+  } = useForm();
+  const buttonController = async data => {
+    if (!op) {
+      setAlertTitle('Try again');
+      setAlertDescription('Please select an operation');
+      setVisible(true);
+    } else {
+      setLoading(true);
+      let params = {
+        firstNumber: data.firstNumber,
+        secondNumber: data.secondNumber,
+        operation: op,
+      };
+      post('calculate/perform', params, false, {
+        success: async res => {
+          setLoading(false);
+          setAlertTitle('Success!');
+          setAlertDescription(res);
+          setVisible(true);
+        },
+        error: async error => {
+          setLoading(false);
+          setAlertTitle('Try again');
+          setAlertDescription('Server error ' + error);
+          setVisible(true);
+        },
+      });
+      setReset(true);
+      setOp('');
+    }
   };
-  const handleChange = textReceived => {
-    setText(textReceived);
-    console.log(textReceived);
-  };
-  const items = ['Addition (+)', 'Subtraction (-)', 'Multiplication (*)'];
+  if (loading) {
+    return <Loader />;
+  }
+
+  const items = ['Addition', 'Subtraction', 'Multiplication'];
   return (
     <Wrapper>
       <View style={styles.container}>
@@ -31,28 +79,75 @@ const Calculator = () => {
           textColor={Colors.Gray}
           styles={styles.gap}
         />
-        <Input
-          fieldType="number"
-          placeholder="Enter first number"
-          height={Dimensions.Height * 0.06}
-          width={Dimensions.Width * 0.9}
-          textColor={Colors.DarkerGray}
-          onChangeText={txt => handleChange(txt)}
+        <Controller
+          control={control}
+          render={({field: {onChange, onBlur, value}}) => (
+            <Input
+              fieldType="number"
+              multiline={false}
+              placeholder="Enter the first number"
+              width={Dimensions.Width * 0.9}
+              textColor={Colors.DarkerGray}
+              onChangeText={txt => {
+                onChange(txt);
+                setReset(false);
+              }}
+              reset={reset}
+            />
+          )}
+          name="firstNumber"
+          rules={{
+            required: 'Number is required',
+            minLength: {
+              value: 1,
+              message: 'Number must contain atleast 1 digit',
+            },
+          }}
         />
+        {errors.firstNumber && (
+          <Text
+            text={errors.firstNumber.message}
+            textColor={Colors.DangerColor}
+          />
+        )}
+
         <Text
           text={'Second number'}
           bold
           textColor={Colors.Gray}
           styles={styles.gap}
         />
-        <Input
-          fieldType="number"
-          placeholder="Enter second number"
-          height={Dimensions.Height * 0.06}
-          width={Dimensions.Width * 0.9}
-          textColor={Colors.DarkerGray}
-          onChangeText={txt => handleChange(txt)}
+        <Controller
+          control={control}
+          render={({field: {onChange, onBlur, value}}) => (
+            <Input
+              fieldType="number"
+              multiline={false}
+              placeholder="Enter the second number"
+              width={Dimensions.Width * 0.9}
+              textColor={Colors.DarkerGray}
+              onChangeText={txt => {
+                onChange(txt);
+                setReset(false);
+              }}
+              reset={reset}
+            />
+          )}
+          name="secondNumber"
+          rules={{
+            required: 'Number is required',
+            minLength: {
+              value: 1,
+              message: 'Number must contain atleast 1 digit',
+            },
+          }}
         />
+        {errors.secondNumber && (
+          <Text
+            text={errors.secondNumber.message}
+            textColor={Colors.DangerColor}
+          />
+        )}
         <Text
           text={'Operation'}
           bold
@@ -60,21 +155,25 @@ const Calculator = () => {
           styles={styles.gap}
         />
         <TouchableOpacity onPress={() => setOpen(true)} style={styles.dropdown}>
-          <Text
-            text={'Select operation'}
-            textColor={Colors.Gray}
-            styles={styles.gap}
-          />
+          {op === '' ? (
+            <Text
+              text={'Select operation'}
+              textColor={Colors.Gray}
+              styles={styles.gap}
+            />
+          ) : (
+            <Text text={op} textColor={Colors.Gray} styles={styles.gap} />
+          )}
         </TouchableOpacity>
         <Dropdown
           items={items}
           heading="Operation"
-          onSelect={buttonController}
+          onSelect={val => setOp(val)}
           onCancel={() => setOpen(false)}
           open={open}
         />
         <Button
-          onClick={buttonController}
+          onClick={handleSubmit(buttonController)}
           buttonType="fill"
           text="Submit"
           backgroundColor={Colors.Primary}
@@ -83,6 +182,15 @@ const Calculator = () => {
           height={Dimensions.Height * 0.05}
           width={Dimensions.Width * 0.8}
           style={styles.center}
+        />
+        <Alert
+          heading={alertTitle}
+          isVisible={visible}
+          description={alertDescription}
+          iconName="notifications"
+          iconColor={Colors.Primary}
+          onCancel={() => setVisible(false)}
+          button={'OK'}
         />
       </View>
     </Wrapper>
@@ -113,7 +221,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.Gray,
     borderRadius: 10,
     borderWidth: 0.5,
-    paddingHorizontal: 5,
+    padding: 5,
   },
 });
 

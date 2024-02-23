@@ -30,8 +30,10 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.DangerColor,
   },
   confirmButton: {
-    alignSelf: 'flex-end',
-    margin: 10,
+    right: 0,
+    bottom: 0,
+    position: 'absolute',
+    margin: 8,
   },
 });
 

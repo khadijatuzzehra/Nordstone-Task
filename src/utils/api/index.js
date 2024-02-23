@@ -2,9 +2,9 @@ import React, {createContext, useContext} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-const baseURL = 'https://staging.unisocialsolutions.co.uk/api/';
-const apiBaseURL = 'https://unisocialsolutions.co.uk/api/';
-const assetBaseURL = 'https://unisocialsolutions.co.uk/api/';
+const baseURL = 'https://nordstone-task-e808135cfd2a.herokuapp.com/';
+const apiBaseURL = 'https://nordstone-task-e808135cfd2a.herokuapp.com/';
+const assetBaseURL = 'https://nordstone-task-e808135cfd2a.herokuapp.com/';
 
 const timeout = 60000;
 export const ApiContext = createContext();
@@ -46,11 +46,9 @@ export const ApiProvider = props => {
   const post = async (url, params, form, options) => {
     let CancelToken = axios.CancelToken;
     const requestURL = `${baseURL}${url}`;
-    const token = await getToken();
     axios
       .post(requestURL, params, {
         headers: {
-          Authorization: `Bearer ${token}`,
           'Content-Type': form ? 'multipart/form-data' : 'application/json',
         },
         timeout: parseInt(timeout, 10),

@@ -72,12 +72,12 @@ const Notification = () => {
           <View>
             <Text
               bold
-              text="Hi Alex!"
+              text="Hello there!"
               size={Fonts.size.font16}
               textColor={Colors.White}
             />
             <Text
-              text="Good Morning"
+              text="Have a great day."
               size={Fonts.size.font14}
               textColor={Colors.White}
             />
